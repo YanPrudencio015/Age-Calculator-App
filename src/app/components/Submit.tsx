@@ -7,24 +7,19 @@ import { useEffect } from "react";
 
 export default function Submit() {
     const checkDate: boolean = useAppSelector(state => state.checkDate.value);
+    const correctUserDate = useAppSelector(state => state.UserDate )
     const dispatch = useAppDispatch();
 
     function checkUserDate() {
         dispatch(turnTrue());
     }
     
-    
-    // useEffect(()=>{
-    //     if(checkDate === true){
-    //         dispatch(returnFalse());
-    //     }
-    //     },[checkDate])
     useEffect(()=>{
-        console.log(checkDate)
+        console.log('debugando do Submut jsx: ', correctUserDate)
     },[checkDate])
 
 
-
+    // calcular o tempo de vida com a idade 
 
     return (
         <div className="relative after:absolute sm:after:relative after:content-[''] after:block after:w-[90%] sm:after:w-[65%] after:h-1 after:bg-[#f0f0f0] after:z-0 rounded-none w-full h-[20%] sm:h-[15%] flex justify-center items-center sm:flex-row-reverse">

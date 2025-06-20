@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import CheckDateReducer from './features/todo/CheckDateSlice';
+import UserValuesSlice from "./features/todo/GetInputDate";
 
 export const store = configureStore({
     reducer:{
         checkDate: CheckDateReducer,
+        UserDate: UserValuesSlice,
     },   
 });
 

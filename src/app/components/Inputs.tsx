@@ -3,10 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../store/hook";
 import { returnFalse } from "../lib/features/todo/CheckDateSlice";
 
+import { getUservalue } from "../lib/features/todo/GetInputDate";
 export default function Inputs() {
     const checkDate = useAppSelector(state => state.checkDate.value);
     const dispatch = useAppDispatch();
-    // Create labels by map 
+
+    // Create labels jsx by map 
     type fieldTime = 'Day'|'Month'|'Year';
     const buttons: {title:fieldTime, placeholder:string}[] = [
         {title: 'Day',placeholder:'DD'},
@@ -120,123 +122,79 @@ export default function Inputs() {
     ];
 
     useEffect(() => {
+
         if (checkDate) {
-            // check number value invalid at each field
             const DayFieldvalue = Number(userDate[0].value);
-            const inputDayRef = inputsdigits[0].current;
-            const spanDayRef = fieldRefs[0].span.current;
-            const isDayInvalid = DayFieldvalue > 31 || DayFieldvalue < 0;
-            const textDayRef = fieldRefs[0].textError.current;
-
-            if (textDayRef) {
-                textDayRef.innerHTML = isDayInvalid
-                ? inputsValuesErrors[0].invalidDeted : '';
-            }
-            if (inputDayRef) {
-                inputDayRef.style.border = isDayInvalid 
-                ? 'solid 1px #ff5757' 
-                : 'solid 1px #716f6f';
-            }
-            if (spanDayRef) {
-                spanDayRef.style.color = isDayInvalid 
-                ? '#ff5757' 
-                : '#716f6f';
-            }
-
-            // if value month is biggest than 12 and smallest than 0 
             const MonthFieldvalue = Number(userDate[1].value);
-            const inputMonthRef = inputsdigits[1].current;
-            const spanMonthRef = fieldRefs[1].span.current;
-            const isMonthInvalid = MonthFieldvalue > 12 || MonthFieldvalue < 0;
-            const textMonthRef = fieldRefs[1].textError.current;
-
-            if(textMonthRef) {
-                textMonthRef.innerHTML = isMonthInvalid ? 
-                inputsValuesErrors[1].invalidDeted : '';
-            }
-
-            if (inputMonthRef) {
-                inputMonthRef.style.border = isMonthInvalid 
-                ? 'solid 1px #ff5757' 
-                : 'solid 1px #716f6f';
-            }
-          
-            if (spanMonthRef) {
-                spanMonthRef.style.color = isMonthInvalid 
-                ? '#ff5757' 
-                : '#716f6f';
-            }
-            
             const yearFieldvalue = Number(userDate[2].value);
-            const inputYearRef = inputsdigits[2].current;
-            const spanYearRef = fieldRefs[2].span.current;
-            const isYearInvalid = yearFieldvalue > new Date().getFullYear() || yearFieldvalue < 0;
-            const textYearRef = fieldRefs[2].textError.current;
+            let canCalcDate:boolean = true;
 
-            if(textYearRef) {
-                textYearRef.innerHTML = isYearInvalid ? 
-                inputsValuesErrors[2].invalidDeted : '';
-            }
-            if (inputYearRef) {
-                inputYearRef.style.border = isYearInvalid 
-                ? 'solid 1px #ff5757' 
-                : 'solid 1px #716f6f';
-            }  
-            if (spanYearRef) {
-                spanYearRef.style.color = isYearInvalid 
-                ? '#ff5757' 
-                : '#716f6f';
-            }
+            const DateConditons = [
+                {
+                    Fieldvalue:Number(userDate[0].value),
+                    inputsdigits: inputsdigits[0].current,
+                    spanRef: fieldRefs[0].span.current,
+                    isInvalid: DayFieldvalue > 31 || DayFieldvalue < 0,
+                    textRef: fieldRefs[0].textError.current,
+                    isInputEmpty:inputUserValue.Day === '',
+                },
+                {
+                    Fieldvalue:Number(userDate[1].value),
+                    inputsdigits: inputsdigits[1].current,
+                    spanRef:fieldRefs[1].span.current,
+                    isInvalid:MonthFieldvalue > 12 || MonthFieldvalue < 0,
+                    textRef: fieldRefs[1].textError.current,
+                    isInputEmpty:inputUserValue.Month === '',
+                },
+                {
+                    Fieldvalue:Number(userDate[2].value),
+                    inputsdigits: inputsdigits[2].current,
+                    spanRef:fieldRefs[2].span.current,
+                    isInvalid:yearFieldvalue > new Date().getFullYear() || yearFieldvalue < 0,
+                    textRef: fieldRefs[2].textError.current,
+                    isInputEmpty:inputUserValue.Year === '',
+                },
+            ]
 
-            // check if the inputs are empty
-            const isDayInputEmpty = inputUserValue.Day === '';
-            if (textDayRef) {
-                textDayRef.innerHTML = isDayInputEmpty
-                ? inputsValuesErrors[0].empty : isDayInvalid ? inputsValuesErrors[0].invalidDeted : '';
-            }
-            if (inputDayRef) {
-                inputDayRef.style.border = isDayInputEmpty 
-                ? 'solid 1px #ff5757' 
-                : isDayInvalid ? 'solid 1px #ff5757' : 'solid 1px #716f6f';
-            }
-            if (spanDayRef) {
-                spanDayRef.style.color = isDayInputEmpty 
-                ? '#ff5757' 
-                : isDayInvalid ? '#ff5757' : '#716f6f';
-            }
             
-            const isMonthInputEmpty = inputUserValue.Month === '';
-            if (textMonthRef) {
-                textMonthRef.innerHTML = isMonthInputEmpty
-                ? inputsValuesErrors[1].empty : isMonthInvalid ? inputsValuesErrors[1].invalidDeted : '';
+            DateConditons.map((values, index)=>{
+                    if(values.isInputEmpty || values.isInvalid){
+                        canCalcDate = false;
+                    }
+                // texts erros
+                if (values.textRef) {
+                    values.textRef.innerHTML = values.isInvalid
+                    ? inputsValuesErrors[index].invalidDeted : '';
+                }
+                // inputs erros
+                if (values.inputsdigits) {
+                    values.inputsdigits.style.border = values.isInvalid 
+                    ? 'solid 1px #ff5757' 
+                    : 'solid 1px #716f6f';
+                }
+                // values erros
+                if (values.spanRef) {
+                    values.spanRef.style.color = values.isInvalid 
+                    ? '#ff5757' 
+                    : '#716f6f';
+                    }
+
+            })
+
+            // condition to check if the date is invalid 
+                // se o mês tiver 30 dias e colocar 31 tem que dar erro, além dos inputs vazios
+
+            if(canCalcDate){
+                console.log('dia: ', DayFieldvalue);
+                console.log('mês: ', MonthFieldvalue);
+                console.log('ano: ', yearFieldvalue);  
+                
+                dispatch(getUservalue({
+                    dayInput: DayFieldvalue,
+                    monthInput: MonthFieldvalue,
+                    yearInput: yearFieldvalue,
+                }))
             }
-            if (inputMonthRef) {
-                inputMonthRef.style.border = isMonthInputEmpty 
-                ? 'solid 1px #ff5757' 
-                : isMonthInvalid ? 'solid 1px #ff5757' : 'solid 1px #716f6f';
-            }
-            if (spanMonthRef) {
-                spanMonthRef.style.color = isMonthInputEmpty 
-                ? '#ff5757' 
-                : isMonthInvalid ? '#ff5757' : '#716f6f';
-            }
-            
-            const isYearInputEmpty = inputUserValue.Year === '';
-            if (textYearRef) {
-                textYearRef.innerHTML = isYearInputEmpty
-                ? inputsValuesErrors[2].empty : isYearInvalid ? inputsValuesErrors[2].invalidDeted : '';
-            }
-            if (inputYearRef) {
-                inputYearRef.style.border = isYearInputEmpty 
-                ? 'solid 1px #ff5757' 
-                : isYearInvalid ? 'solid 1px #ff5757' : 'solid 1px #716f6f';
-            }
-            if (spanYearRef) {
-                spanYearRef.style.color = isYearInputEmpty 
-                ? '#ff5757' 
-                : isYearInvalid ? '#ff5757' : '#716f6f';
-            }
-            
             dispatch(returnFalse());
         }
     }, [checkDate, dispatch, fieldRefs, inputsValuesErrors, inputsdigits, inputUserValue.Day, inputUserValue.Month, inputUserValue.Year, userDate]);
