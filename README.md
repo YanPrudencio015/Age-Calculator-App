@@ -1,43 +1,30 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 🧮 Age Calculator App
 
-## Getting Started
+A simple and responsive app that allows the user to input a date and discover how much time has passed since that date until today.
 
-First, run the development server:
+### 🚀 Technologies Used
+- Next.js
+- Tailwind CSS
+- TypeScript
+- Redux
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🛠️ How I Built It
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- When the app loads, the **day input field is automatically focused**, so the user can start typing right away — no need to click or tap.
+  
+- To make the form more user-friendly and fast to fill out:
+  - When the user types **two digits** in the **day** or **month** field, the focus automatically moves to the next input.
+  - In the **year** field, the user must type **four digits** to complete it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- The user can also use the **Enter** key to move forward and the **Backspace** key to go back through the inputs.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- The app is fully **responsive**, adapting to all screen sizes, from the smallest to the largest viewports.
 
-## Learn More
+- There's a **count-up animation** between the numbers when the app calculates the result, making the interaction more dynamic.
 
-To learn more about Next.js, take a look at the following resources:
+### 🧪 Run it locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# Age-Calculator-App
-App to calculate the time between the user's date of birth and the current date.
-
-The user inputs the day, month, and year, and then, after clicking to send, the app calculates the time and shows it.
->>>>>>> 530e4e8df34a7bc2cd6d8f2d16aa5236510a054c
+1. Open your terminal
+2. Run:
+   ```bash
+   npm run dev
