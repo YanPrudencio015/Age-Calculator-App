@@ -98,14 +98,14 @@ export default function Inputs() {
         {empty: string, invalidDeted: string},
         {empty: string, invalidDeted: string},
         {empty: string, invalidDeted: string},
-        {invalidDeted: string},
+        {empty: string,invalidDeted: string},
     ];
     
     const inputsValuesErrors:DateValueErrors = [
         {empty:'This field is required', invalidDeted:'must be a valid day' },
         {empty:'This field is required', invalidDeted:'must be a valid month'},
-        {empty:'This field is required', invalidDeted:'must be a valid year'},
-        {invalidDeted:'must be a valid Date'},
+        {empty:'This field is required', invalidDeted:'must be in the past'},
+        {empty:'This field is required', invalidDeted:'must be a valid Date'},
     ];
 
     // to change inputs values(User date) from string to numbers
@@ -177,17 +177,61 @@ export default function Inputs() {
                     values.spanRef.style.color = values.isInvalid 
                     ? '#ff5757' 
                     : '#716f6f';
-                    }
+                }
+
+                if(values.isInputEmpty){
+                    values.spanRef && (values.spanRef.style.color = '#ff5757'); 
+                    values.inputsdigits && (values.inputsdigits.style.border = 'solid 1px #ff5757'); 
+                     values.textRef &&  (values.textRef.innerHTML = inputsValuesErrors[index].empty); 
+                }  
 
             })
 
             // condition to check if the date is invalid 
-                // se o mês tiver 30 dias e colocar 31 tem que dar erro, além dos inputs vazios
+            // se o mês tiver 30 dias e colocar 31 tem que dar erro, além dos inputs vazios
+
+            // pegar o input do mês e verificar se ele representa um mês de 30 dias, 31 dias ou Fev.
+            // verificar se o dia corresponde com o número de dias do mês, se não, deve dar erro
+
+            const anoAtual = new Date().getFullYear();
+            var meses30dias = [];
+            var meses31dias = [];
+            var meses28ou29dias = [];
+            const meses = [ 'Janeiro', 'fevereiro', 'Março', 'Abril', 'Maio',
+            'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro',
+            'Novembro', 'Dezembro']
+            for(let i = 0; i < 12; i++){
+                const diasMeses = new Date(anoAtual, i+1, 0).getDate();
+                const nomeMeses = meses[i];                
+
+                if(diasMeses === 30){
+                    meses30dias.push(nomeMeses)
+                } else if(diasMeses ===31){
+                    meses31dias.push(diasMeses);
+                } else{
+                    meses28ou29dias.push(diasMeses)
+                }
+            }
+            
+            // verificar se o usuário colocou um mês que não coresponde com o número de dias:
+             const diasMesUsuario = new Date(anoAtual, MonthFieldvalue, 0).getDate();
+             const NomeMesUsuario = meses[MonthFieldvalue - 1];
+
+             console.log(`O mês que o usuário escolheu: ${NomeMesUsuario} e quantos dias tem: ${diasMesUsuario}`)
+
+             if(diasMesUsuario <= 30 && DayFieldvalue > 30){
+
+                DateConditons.forEach((value, index)=>{
+                    value.inputsdigits && (value.inputsdigits.style.border = 'solid 1px #ff5757'); 
+                    value.spanRef && (value.spanRef.style.color = '#ff5757'); 
+                })
+                DateConditons[0].textRef && (DateConditons[0].textRef.innerHTML = inputsValuesErrors[3].invalidDeted);
+            }
 
             if(canCalcDate){
-                console.log('dia: ', DayFieldvalue);
-                console.log('mês: ', MonthFieldvalue);
-                console.log('ano: ', yearFieldvalue);  
+                // console.log('dia: ', DayFieldvalue);
+                // console.log('mês: ', MonthFieldvalue);
+                // console.log('ano: ', yearFieldvalue);  
                 
                 dispatch(getUservalue({
                     dayInput: DayFieldvalue,
