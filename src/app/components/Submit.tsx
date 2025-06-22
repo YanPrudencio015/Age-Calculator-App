@@ -6,7 +6,6 @@ import { turnTrue} from "../lib/features/todo/CheckDateSlice";
 import { useEffect } from "react";
 
 export default function Submit() {
-    const checkDate: boolean = useAppSelector(state => state.checkDate.value);
     const correctUserDate = useAppSelector(state => state.UserDate )
     const dispatch = useAppDispatch();
 
@@ -16,7 +15,6 @@ export default function Submit() {
     
     useEffect(()=>{
         // calcular o tempo de vida com a idade 
-
 
         
     },[correctUserDate])
