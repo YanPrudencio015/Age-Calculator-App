@@ -13,18 +13,17 @@ const initialInputsValue: UserValues = {
     yearInput: 0,
 }
 
-export const UserValuesSlice = createSlice({
+export const UserTimeLivedSlice = createSlice({
     name: "UserValues",
     initialState: initialInputsValue,
     reducers: {
-        getUservalue: (state, action: PayloadAction<UserValues>) => {
+        SendUserTime: (state, action: PayloadAction<UserValues>) => {
             state.dayInput = action.payload.dayInput;
             state.monthInput = action.payload.monthInput;
             state.yearInput = action.payload.yearInput;
-        },
-
+        }
     }
 });
 
-export const { getUservalue} = UserValuesSlice.actions;
-export default UserValuesSlice.reducer;
+export const {SendUserTime} = UserTimeLivedSlice.actions;
+export default UserTimeLivedSlice.reducer;

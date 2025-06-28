@@ -1,11 +1,14 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../store/hook";
-import { returnFalse } from "../lib/features/todo/CheckDateSlice";
+import { returnFalse, turnTrue } from "../lib/features/todo/CheckDateSlice";
+import { hasError, NoError } from "../lib/features/todo/CanCalcTime";
 
 import { getUservalue } from "../lib/features/todo/GetInputDate";
+import { SendUserTime } from "../lib/features/todo/UserTimeLiveSlice";
 export default function Inputs() {
     const checkDate = useAppSelector(state => state.checkDate.value);
+    const userDateError = useAppSelector(state => state.checkError.value)
     const dispatch = useAppDispatch();
 
     // Create labels jsx by map 
@@ -55,23 +58,60 @@ export default function Inputs() {
     ];
 
     // When the site loads, the first input will be focused to digite a number. 
+
+
+    function focusAtEnd(inputRef:any) {
+        if (inputRef.current) {
+        inputRef.current.focus();
+        setTimeout(() => {
+            const length = inputRef.current.value.length;
+            inputRef.current.setSelectionRange(length, length);
+        }, 0);
+    }
+}
+
+
     useEffect(() => {
         inputsdigits[0].current?.focus();
     }, []);
 
     // Use Enter to jump to next input or use Backspace to return one
-    function keyDownButton(event:React.KeyboardEvent<HTMLInputElement>, index:number){
-        const isEmpty = inputUserValue[buttons[index].title] === '';
-        if(event.key === "Enter"){
-            if(index < inputsdigits.length - 1){
-                inputsdigits[index + 1].current?.focus();
-            }
-        } else if(event.key === "Backspace" && isEmpty) {
-            if(index > 0) {
-                inputsdigits[index - 1].current?.focus();
-            }
+function keyDownButton(event: React.KeyboardEvent<HTMLInputElement>, index: number) {
+    const isEmpty = inputUserValue[buttons[index].title] === '';
+    
+    if (event.key === "Enter") {
+        const cancalcByEnter =  inputsdigits[2].current?.value;
+        if (index < inputsdigits.length - 1) {
+            focusAtEnd(inputsdigits[index + 1]);
+        }
+        if(cancalcByEnter?.length === 4){
+        dispatch(turnTrue())
+    }
+    } else if (event.key === "Backspace" && isEmpty) {
+        if (index > 0) {
+            focusAtEnd(inputsdigits[index - 1]);
         }
     }
+
+    if (event.key === "ArrowRight") {
+        if (index < inputsdigits.length - 1) {
+            focusAtEnd(inputsdigits[index + 1]);
+        }
+    } else if (event.key === "ArrowLeft") {
+        if (index > 0) {
+            focusAtEnd(inputsdigits[index - 1]);
+        }
+    }
+}
+
+useEffect(()=>{
+    const cancalcByEnter =  inputsdigits[2].current?.value;
+    if(cancalcByEnter?.length === 4){
+        console.log('Enter para calcular')
+    }
+},[inputsdigits[2].current?.value])
+
+
 
     // function to check how many digits has in each input. DD/MM 2 digits, YYYY 4 digits    
     function inputDigits(index:number, value:string){
@@ -121,135 +161,122 @@ export default function Inputs() {
         {value: Number(inputUserValue.Year)},
     ];
 
-    useEffect(() => {
+ useEffect(() => {
+    if (checkDate) {
+        const DayFieldvalue = Number(userDate[0].value);
+        const MonthFieldvalue = Number(userDate[1].value);
+        const yearFieldvalue = Number(userDate[2].value);
+        let hasValidationErrors = false;
 
-        if (checkDate) {
-            const DayFieldvalue = Number(userDate[0].value);
-            const MonthFieldvalue = Number(userDate[1].value);
-            const yearFieldvalue = Number(userDate[2].value);
-            let canCalcDate:boolean = true;
+        const DateConditons = [
+            {
+                Fieldvalue: DayFieldvalue,
+                inputsdigits: inputsdigits[0].current,
+                spanRef: fieldRefs[0].span.current,
+                isInvalid: DayFieldvalue > 31 || DayFieldvalue < 1,
+                textRef: fieldRefs[0].textError.current,
+                isInputEmpty: inputUserValue.Day === '',
+            },
+            {
+                Fieldvalue: MonthFieldvalue,
+                inputsdigits: inputsdigits[1].current,
+                spanRef: fieldRefs[1].span.current,
+                isInvalid: MonthFieldvalue > 12 || MonthFieldvalue < 1,
+                textRef: fieldRefs[1].textError.current,
+                isInputEmpty: inputUserValue.Month === '',
+            },
+            {
+                Fieldvalue: yearFieldvalue,
+                inputsdigits: inputsdigits[2].current,
+                spanRef: fieldRefs[2].span.current,
+                isInvalid: yearFieldvalue > new Date().getFullYear() || yearFieldvalue < 0,
+                textRef: fieldRefs[2].textError.current,
+                isInputEmpty: inputUserValue.Year === '',
+            },
+        ];
 
-            const DateConditons = [
-                {
-                    Fieldvalue:Number(userDate[0].value),
-                    inputsdigits: inputsdigits[0].current,
-                    spanRef: fieldRefs[0].span.current,
-                    isInvalid: DayFieldvalue > 31 || DayFieldvalue < 0,
-                    textRef: fieldRefs[0].textError.current,
-                    isInputEmpty:inputUserValue.Day === '',
-                },
-                {
-                    Fieldvalue:Number(userDate[1].value),
-                    inputsdigits: inputsdigits[1].current,
-                    spanRef:fieldRefs[1].span.current,
-                    isInvalid:MonthFieldvalue > 12 || MonthFieldvalue < 0,
-                    textRef: fieldRefs[1].textError.current,
-                    isInputEmpty:inputUserValue.Month === '',
-                },
-                {
-                    Fieldvalue:Number(userDate[2].value),
-                    inputsdigits: inputsdigits[2].current,
-                    spanRef:fieldRefs[2].span.current,
-                    isInvalid:yearFieldvalue > new Date().getFullYear() || yearFieldvalue < 0,
-                    textRef: fieldRefs[2].textError.current,
-                    isInputEmpty:inputUserValue.Year === '',
-                },
-            ]
+        // basic field's validations
+        DateConditons.forEach((values, index) => {
+            if (values.isInputEmpty || values.isInvalid) {
+                hasValidationErrors = true;
+            }
 
-            
-            DateConditons.map((values, index)=>{
-                    if(values.isInputEmpty || values.isInvalid){
-                        canCalcDate = false;
-                    }
-                // texts erros
-                if (values.textRef) {
-                    values.textRef.innerHTML = values.isInvalid
-                    ? inputsValuesErrors[index].invalidDeted : '';
-                }
-                // inputs erros
-                if (values.inputsdigits) {
-                    values.inputsdigits.style.border = values.isInvalid 
+            // apply erros styles
+            if (values.textRef) {
+                values.textRef.innerHTML = values.isInputEmpty 
+                    ? inputsValuesErrors[index].empty 
+                    : values.isInvalid 
+                        ? inputsValuesErrors[index].invalidDeted 
+                        : '';
+            }
+
+            if (values.inputsdigits) {
+                values.inputsdigits.style.border = (values.isInvalid || values.isInputEmpty)
                     ? 'solid 1px #ff5757' 
                     : 'solid 1px #716f6f';
-                }
-                // values erros
-                if (values.spanRef) {
-                    values.spanRef.style.color = values.isInvalid 
+            }
+
+            if (values.spanRef) {
+                values.spanRef.style.color = (values.isInvalid || values.isInputEmpty)
                     ? '#ff5757' 
                     : '#716f6f';
-                }
-
-                if(values.isInputEmpty){
-                    values.spanRef && (values.spanRef.style.color = '#ff5757'); 
-                    values.inputsdigits && (values.inputsdigits.style.border = 'solid 1px #ff5757'); 
-                     values.textRef &&  (values.textRef.innerHTML = inputsValuesErrors[index].empty); 
-                }  
-
-            })
-
-            // condition to check if the date is invalid 
-            // se o mês tiver 30 dias e colocar 31 tem que dar erro, além dos inputs vazios
-
-            // pegar o input do mês e verificar se ele representa um mês de 30 dias, 31 dias ou Fev.
-            // verificar se o dia corresponde com o número de dias do mês, se não, deve dar erro
-
-            const anoAtual = new Date().getFullYear();
-            var meses30dias = [];
-            var meses31dias = [];
-            var meses28ou29dias = [];
-            const meses = [ 'Janeiro', 'fevereiro', 'Março', 'Abril', 'Maio',
-            'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro',
-            'Novembro', 'Dezembro']
-            for(let i = 0; i < 12; i++){
-                const diasMeses = new Date(anoAtual, i+1, 0).getDate();
-                const nomeMeses = meses[i];                
-
-                if(diasMeses === 30){
-                    meses30dias.push(nomeMeses)
-                } else if(diasMeses ===31){
-                    meses31dias.push(diasMeses);
-                } else{
-                    meses28ou29dias.push(diasMeses)
-                }
             }
-            
-            // verificar se o usuário colocou um mês que não coresponde com o número de dias:
-             const diasMesUsuario = new Date(anoAtual, MonthFieldvalue, 0).getDate();
-             const NomeMesUsuario = meses[MonthFieldvalue - 1];
+        });
 
-             console.log(`O mês que o usuário escolheu: ${NomeMesUsuario} e quantos dias tem: ${diasMesUsuario}`)
+        // specify validation date (only if fields are valid)
+        if (!hasValidationErrors) {
+            // check if the date is valid
+            const testDate = new Date(yearFieldvalue, MonthFieldvalue - 1, DayFieldvalue);
+            const isValidDate = testDate.getFullYear() === yearFieldvalue &&
+                               testDate.getMonth() === MonthFieldvalue - 1 &&
+                               testDate.getDate() === DayFieldvalue;
 
-             if(diasMesUsuario <= 30 && DayFieldvalue > 30){
-
-                DateConditons.forEach((value, index)=>{
-                    value.inputsdigits && (value.inputsdigits.style.border = 'solid 1px #ff5757'); 
-                    value.spanRef && (value.spanRef.style.color = '#ff5757'); 
-                })
-                DateConditons[0].textRef && (DateConditons[0].textRef.innerHTML = inputsValuesErrors[3].invalidDeted);
-            }
-
-            if(canCalcDate){
-                // console.log('dia: ', DayFieldvalue);
-                // console.log('mês: ', MonthFieldvalue);
-                // console.log('ano: ', yearFieldvalue);  
+            if (!isValidDate) {
+                hasValidationErrors = true;
                 
-                dispatch(getUservalue({
-                    dayInput: DayFieldvalue,
-                    monthInput: MonthFieldvalue,
-                    yearInput: yearFieldvalue,
-                }))
+                // Apply styles of erro to all fields
+                DateConditons.forEach((value) => {
+                    if (value.inputsdigits) {
+                        value.inputsdigits.style.border = 'solid 1px #ff5757';
+                    }
+                    if (value.spanRef) {
+                        value.spanRef.style.color = '#ff5757';
+                    }
+                });
+                
+                // show erro in day's field
+                if (DateConditons[0].textRef) {
+                    DateConditons[0].textRef.innerHTML = inputsValuesErrors[3].invalidDeted;
+                }
             }
-            dispatch(returnFalse());
         }
-    }, [checkDate, dispatch, fieldRefs, inputsValuesErrors, inputsdigits, inputUserValue.Day, inputUserValue.Month, inputUserValue.Year, userDate]);
 
+        // Dispatch based on validation
+        if (hasValidationErrors) {
+            dispatch(hasError());
+        } else {
+            dispatch(getUservalue({
+                dayInput: DayFieldvalue,
+                monthInput: MonthFieldvalue,
+                yearInput: yearFieldvalue,
+            }));
+            dispatch(NoError());
+        }
+
+        dispatch(returnFalse());
+    }
+}, [checkDate, dispatch, fieldRefs, inputsValuesErrors, inputsdigits, inputUserValue.Day, inputUserValue.Month, inputUserValue.Year, userDate]);
     return (
-        <div className="rounded-t-[8vw] sm:rounded-t-[1vw] w-full h-[25%] flex items-center sm:items-end justify-center sm:justify-start gap-4 px-6 sm:px-2">
+        <div className=" 
+                        rounded-t-[8vw] sm:rounded-t-[1vw] w-full h-[25%] 
+                        flex items-center sm:items-end 
+                        justify-center sm:justify-start
+                        sm:px-2 sm:pl-6">
             {buttons.map((value, index) => (
                 <label 
                     ref={fieldRefs[index].label}  
                     key={index} 
-                    className="relative w-[30%] sm:w-[20%] h-[50%] sm:h-[70%] flex flex-col items-start">
+                    className="relative w-[6.5em] sm:w-[23%] h-[70%] sm:h-[70%] flex flex-col items-start">
                     <span 
                         ref={fieldRefs[index].span} 
                         className="text-[#716f6f] text-[12px] font-black font-poppins-sans-serif uppercase tracking-[2px]">
@@ -264,12 +291,14 @@ export default function Inputs() {
                             inputDigits(index, e.target.value);
                         }} 
                         onKeyDown={(e) => keyDownButton(e, index)}
-                        className="text-black focus:border-[#854dff] caret-[#854dff] pl-2 sm:pl-0 sm:text-center font-black text-[25px] font-poppins-sans-serif w-[100%] border-1 border-[#716f6f] rounded-md h-[70%] outline-0" 
+                        className="text-black focus:border-[#854dff] caret-[#854dff] pl-2 sm:pl-0
+                                    sm:text-center font-black text-[25px] font-poppins-sans-serif 
+                                    w-[90%] border-1 border-[#716f6f] rounded-md h-[70%] outline-0" 
                         type="text"
                     />
                     <p 
                         ref={fieldRefs[index].textError}
-                        className="absolute bottom-[0vh] text-[#ff5757] text-[15px] sm:text-[0.8vw]">
+                        className="absolute bottom-[-2.5em] sm:bottom-[-1em] text-[#ff5757] w-full text-center text-[15px] sm:text-[0.8vw]">
                     </p>
                 </label>
             ))}

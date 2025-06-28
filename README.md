@@ -17,6 +17,7 @@ A simple and responsive app that allows the user to input a date and discover ho
   - In the **year** field, the user must type **four digits** to complete it.
 
 - The user can also use the **Enter** key to move forward and the **Backspace** key to go back through the inputs.
+  - also can use **arrow Left** and **arrow right** to move between the inputs's values.
 
 - The app is fully **responsive**, adapting to all screen sizes, from the smallest to the largest viewports.
 
