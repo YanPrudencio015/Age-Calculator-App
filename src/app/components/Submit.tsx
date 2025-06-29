@@ -4,13 +4,10 @@ import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "../store/hook";
 import { turnTrue} from "../lib/features/todo/CheckDateSlice";
 import { useEffect, useState } from "react";
-import { getUservalue } from "../lib/features/todo/GetInputDate";
 import { SendUserTime } from "../lib/features/todo/UserTimeLiveSlice";
 
 export default function Submit() {
     const correctUserDate = useAppSelector(state => state.UserDate );
-    const userTimeLived = useAppSelector(state => state.TimeLived );
-    const checkDate = useAppSelector(state => state.checkDate.value);
     const dispatch = useAppDispatch();
     const [timeLived, setTimeLived] = useState({daysLived: 0, monthsLived:0, yearsLived:0});
 
