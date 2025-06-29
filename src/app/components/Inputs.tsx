@@ -1,14 +1,12 @@
 "use client"
-import React, { useEffect, useRef, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../store/hook";
 import { returnFalse, turnTrue } from "../lib/features/todo/CheckDateSlice";
 import { hasError, NoError } from "../lib/features/todo/CanCalcTime";
 
 import { getUservalue } from "../lib/features/todo/GetInputDate";
-import { SendUserTime } from "../lib/features/todo/UserTimeLiveSlice";
 export default function Inputs() {
     const checkDate = useAppSelector(state => state.checkDate.value);
-    const userDateError = useAppSelector(state => state.checkError.value)
     const dispatch = useAppDispatch();
 
     // Create labels jsx by map 
@@ -60,12 +58,14 @@ export default function Inputs() {
     // When the site loads, the first input will be focused to digite a number. 
 
 
-    function focusAtEnd(inputRef:any) {
-        if (inputRef.current) {
+function focusAtEnd(inputRef: RefObject<HTMLInputElement | null>) {
+    if (inputRef.current) {
         inputRef.current.focus();
         setTimeout(() => {
-            const length = inputRef.current.value.length;
-            inputRef.current.setSelectionRange(length, length);
+            if (inputRef.current) { // Add this null check
+                const length = inputRef.current.value.length;
+                inputRef.current.setSelectionRange(length, length);
+            }
         }, 0);
     }
 }

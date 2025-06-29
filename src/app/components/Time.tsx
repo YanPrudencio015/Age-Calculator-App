@@ -1,15 +1,10 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch} from "../store/hook";
-import { getUservalue } from "../lib/features/todo/GetInputDate";
-import { SendUserTime } from "../lib/features/todo/UserTimeLiveSlice";
+import { useAppSelector} from "../store/hook";
+
 
 export default function Time() {
   const timeLived = useAppSelector(state => state.TimeLived);
-  const userDate = useAppSelector(state => state.UserDate);
-  const dateError = useAppSelector(state => state.checkError);
-  const canSend = useAppSelector(state => state.checkDate);
-  const dispatch = useAppDispatch();
   const [timeLivedState, setTimeLivedState] = useState({years: 0, months: 0, days: 0});
 
   useEffect(() => {
